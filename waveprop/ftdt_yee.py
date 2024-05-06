@@ -1,6 +1,4 @@
 # GPL3, Copyright (c) Max Hofheinz, UdeS, 2021
-
-import copy
 import numpy
 import fiddle
 import mmap
@@ -39,7 +37,9 @@ def curl_H(H):
 
 
 def timestep(E, H, courant_number, source_pos, source_val):
-    E += courant_number * curl_H(H)
+    curl_h = curl_H(H)
+
+    E += courant_number * curl_h
     E[source_pos] += source_val
     print(numpy.sum(E))
     H -= courant_number * curl_E(E)
@@ -93,9 +93,8 @@ class WaveEquation:
             field = field[:, :, slice_index, field_component]
         source_pos, source_index = source(self.index)
 
-        self.timestep(source_pos, source_index)
-        #self.E, self.H = timestep(self.E, self.H, self.courant_number, source_pos, source_index)
-        
+        # self.timestep(source_pos, source_index)
+        self.E, self.H = timestep(self.E, self.H, self.courant_number, source_pos, source_index)
 
         if initial:
             axes = figure.add_subplot(111)
@@ -105,18 +104,23 @@ class WaveEquation:
         self.index += 1
 
     def timestep(self, source_pos, source_val):
+        print(f"Sum Shared Matrix Before : {numpy.sum(self.shared_matrix)}")
         signal_and_wait(self.curl_proc)
-        self.shared_matrix += self.courant_number * self.shared_matrix
-        self.shared_matrix[source_pos] += source_val
+        print(f"Sum Shared Matrix After : {numpy.sum(self.shared_matrix)}")
 
-        self.E = numpy.copy(self.shared_matrix)
-        print(numpy.sum(self.E))
+        self.E += self.courant_number * self.shared_matrix
+        self.E[source_pos] += source_val
 
+        self.shared_matrix[:,:,:,:] = self.E[:,:,:,:]
+        
+        print(f"Sum Shared Matrix Before : {numpy.sum(self.shared_matrix)}")
         signal_and_wait(self.curl_proc)
-        self.shared_matrix -= self.courant_number * self.shared_matrix
+        print(f"Sum Shared Matrix After : {numpy.sum(self.shared_matrix)}")
 
-        self.H = numpy.copy(self.shared_matrix)
-        print(numpy.sum(self.H))
+        self.H -= self.courant_number * self.shared_matrix
+        self.shared_matrix[:,:,:,:] = self.H[:,:,:,:]
+        
+
 
 
 if __name__ == "__main__":

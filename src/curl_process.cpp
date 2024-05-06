@@ -99,7 +99,10 @@ void curl_e_x_add(double *E, double *curl_E)
         {
             for (int k = 0; k < MATRIX_SIZE; k++)
             {
-                curl_E[int(i * j * k + OFFSET_X)] += E[int(i * (j + 1) * k + OFFSET_Z)] - E[int(i * j * k + OFFSET_Z)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_X;
+                int l_index = ((i + 0) * 30000) + ((j + 1) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                int r_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                curl_E[o_index] += E[l_index] - E[r_index];
             }
         }
     }
@@ -112,7 +115,10 @@ void curl_e_x_sub(double *E, double *curl_E)
         {
             for (int k = 0; k < MATRIX_SIZE - 1; k++)
             {
-                curl_E[int(i * j * k + OFFSET_X)] -= E[int(i * j * (k + 1) + OFFSET_Y)] - E[int(i * j * k + OFFSET_Y)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_X;
+                int l_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 1) * 3) + OFFSET_Y;
+                int r_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                curl_E[o_index] -= E[l_index] - E[r_index];
             }
         }
     }
@@ -126,7 +132,10 @@ void curl_e_y_add(double *E, double *curl_E)
         {
             for (int k = 0; k < MATRIX_SIZE - 1; k++)
             {
-                curl_E[int(i * j * k + OFFSET_Y)] += E[int(i * j * (k + 1) + OFFSET_X)] - E[int(i * j * k + OFFSET_X)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                int l_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 1) * 3) + OFFSET_X;
+                int r_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_X;
+                curl_E[o_index] += E[l_index] - E[r_index];
             }
         }
     }
@@ -140,7 +149,10 @@ void curl_e_y_sub(double *E, double *curl_E)
         {
             for (int k = 0; k < MATRIX_SIZE; k++)
             {
-                curl_E[int(i * j * k + OFFSET_Y)] -= E[int((i + 1) * j * k + OFFSET_Z)] - E[int(i * j * k + OFFSET_Z)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                int l_index = ((i + 1) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                int r_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                curl_E[o_index] -= E[l_index] - E[r_index];
             }
         }
     }
@@ -154,7 +166,10 @@ void curl_e_z_add(double *E, double *curl_E)
         {
             for (int k = 0; k < MATRIX_SIZE; k++)
             {
-                curl_E[int(i * j * k + OFFSET_Z)] += E[int((i + 1) * j * k + OFFSET_Y)] - E[int(i * j * k + OFFSET_Y)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                int l_index = ((i + 1) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                int r_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                curl_E[o_index] += E[l_index] - E[r_index];
             }
         }
     }
@@ -168,7 +183,10 @@ void curl_e_z_sub(double *E, double *curl_E)
         {
             for (int k = 0; k < MATRIX_SIZE; k++)
             {
-                curl_E[int(i * j * k + OFFSET_Z)] -= E[int(i * (j + 1) * k + OFFSET_X)] - E[int(i * j * k + OFFSET_X)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                int l_index = ((i + 0) * 30000) + ((j + 1) * 300) + ((k + 0) * 3) + OFFSET_X;
+                int r_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_X;
+                curl_E[o_index] -= E[l_index] - E[r_index];
             }
         }
     }
@@ -181,7 +199,10 @@ void curl_h_x_add(double *H, double *curl_H)
         {
             for (int k = 0; k < MATRIX_SIZE; k++)
             {
-                curl_H[int(i * j * k + OFFSET_X)] += H[int(i * j * k + OFFSET_Z)] - H[int(i * (j - 1) * k + OFFSET_Z)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_X;
+                int l_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                int r_index = ((i + 0) * 30000) + ((j - 1) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                curl_H[o_index] += H[l_index] - H[r_index];
             }
         }
     }
@@ -194,7 +215,10 @@ void curl_h_x_sub(double *H, double *curl_H)
         {
             for (int k = 1; k < MATRIX_SIZE; k++)
             {
-                curl_H[int(i * j * k + OFFSET_X)] -= H[int(i * j * k + OFFSET_Y)] - H[int(i * j * (k - 1) + OFFSET_Y)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_X;
+                int l_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                int r_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k - 1) * 3) + OFFSET_Y;
+                curl_H[o_index] -= H[l_index] - H[r_index];
             }
         }
     }
@@ -208,7 +232,10 @@ void curl_h_y_add(double *H, double *curl_H)
         {
             for (int k = 1; k < MATRIX_SIZE; k++)
             {
-                curl_H[int(i * j * k + OFFSET_Y)] += H[int(i * j * k + OFFSET_X)] - H[int(i * j * (k - 1) + OFFSET_X)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                int l_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_X;
+                int r_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k - 1) * 3) + OFFSET_X;
+                curl_H[o_index] += H[l_index] - H[r_index];
             }
         }
     }
@@ -222,7 +249,10 @@ void curl_h_y_sub(double *H, double *curl_H)
         {
             for (int k = 0; k < MATRIX_SIZE; k++)
             {
-                curl_H[int(i * j * k + OFFSET_Y)] -= H[int(i * j * k + OFFSET_Z)] - H[int((i - 1) * j * k + OFFSET_Z)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                int l_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                int r_index = ((i - 1) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                curl_H[o_index] -= H[l_index] - H[r_index];
             }
         }
     }
@@ -236,7 +266,10 @@ void curl_h_z_add(double *H, double *curl_H)
         {
             for (int k = 0; k < MATRIX_SIZE; k++)
             {
-                curl_H[int(i * j * k + OFFSET_Z)] += H[int(i * j * k + OFFSET_Y)] - H[int((i - 1) * j * k + OFFSET_Y)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                int l_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                int r_index = ((i - 1) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Y;
+                curl_H[o_index] += H[l_index] - H[r_index];
             }
         }
     }
@@ -250,7 +283,10 @@ void curl_h_z_sub(double *H, double *curl_H)
         {
             for (int k = 0; k < MATRIX_SIZE; k++)
             {
-                curl_H[int(i * j * k + OFFSET_Z)] -= H[int(i * j * k + OFFSET_X)] - H[int(i * (j - 1) * k + OFFSET_X)];
+                int o_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_Z;
+                int l_index = ((i + 0) * 30000) + ((j + 0) * 300) + ((k + 0) * 3) + OFFSET_X;
+                int r_index = ((i + 0) * 30000) + ((j - 1) * 300) + ((k + 0) * 3) + OFFSET_X;
+                curl_H[o_index] -= H[l_index] - H[r_index];
             }
         }
     }
@@ -288,15 +324,25 @@ int main(int argc, char **argv)
     while (true)
     {
         wait_signal();
-        mtx = curl_h(mtx);
-        std::cerr << "CPP: Curl H done.\n"
-                  << std::endl;
+        double* curl_H = curl_h(mtx);
+        for (int i = 0; i < SIZE; i++)
+        {
+            mtx[i] = curl_H[i];
+        }
+        delete curl_H;
+
+        std::cerr << "CPP: Curl H done.\n" << std::endl;
         ack_signal();
 
         wait_signal();
-        mtx = curl_e(mtx);
-        std::cerr << "CPP: Curl E done.\n"
-                  << std::endl;
+        double* curl_E = curl_e(mtx);
+        for (int i = 0; i < SIZE; i++)
+        {
+            mtx[i] = curl_E[i];
+        }
+        delete curl_E;
+
+        std::cerr << "CPP: Curl E done.\n" << std::endl;
         ack_signal();
     }
 
