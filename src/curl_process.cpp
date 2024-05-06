@@ -32,9 +32,9 @@ void ack_signal()
     std::cout << "" << std::endl;
 }
 
-void curl_e(double *E)
+double *curl_e(double *E)
 {
-    double curl_E[BUFFER_SIZE];
+    double curl_E[BUFFER_SIZE] = {};
     curl_e_x_add(E, curl_E);
     curl_e_x_sub(E, curl_E);
 
@@ -43,6 +43,23 @@ void curl_e(double *E)
 
     curl_e_z_add(E, curl_E);
     curl_e_z_sub(E, curl_E);
+
+    return curl_E;
+}
+
+double *curl_h(double *H)
+{
+    double curl_H[BUFFER_SIZE] = {};
+    curl_h_x_add(H, curl_H);
+    curl_h_x_sub(H, curl_H);
+
+    curl_h_y_add(H, curl_H);
+    curl_h_y_sub(H, curl_H);
+
+    curl_h_z_add(H, curl_H);
+    curl_h_z_sub(H, curl_H);
+
+    return curl_H;
 }
 
 void curl_e_x_add(double *E, double *curl_E)
@@ -53,7 +70,7 @@ void curl_e_x_add(double *E, double *curl_E)
         {
             for (int k = 0; k < SIZE; k++)
             {
-                curl_E[int(i * j * k + OFFSET_X)] = E[int(i * (j + 1) * k + OFFSET_Z)] + E[int(i * j * k + OFFSET_Z)];
+                curl_E[int(i * j * k + OFFSET_X)] += E[int(i * (j + 1) * k + OFFSET_Z)] - E[int(i * j * k + OFFSET_Z)];
             }
         }
     }
@@ -66,7 +83,7 @@ void curl_e_x_sub(double *E, double *curl_E)
         {
             for (int k = 0; k < SIZE - 1; k++)
             {
-                curl_E[int(i * j * k + OFFSET_X)] = E[int(i * j * (k + 1) + OFFSET_Y)] - E[int(i * j * k + OFFSET_Y)];
+                curl_E[int(i * j * k + OFFSET_X)] -= E[int(i * j * (k + 1) + OFFSET_Y)] - E[int(i * j * k + OFFSET_Y)];
             }
         }
     }
@@ -80,7 +97,7 @@ void curl_e_y_add(double *E, double *curl_E)
         {
             for (int k = 0; k < SIZE - 1; k++)
             {
-                curl_E[int(i * j * k + OFFSET_Y)] = E[int(i * j * (k + 1) + OFFSET_X)] + E[int(i * j * k + OFFSET_X)];
+                curl_E[int(i * j * k + OFFSET_Y)] += E[int(i * j * (k + 1) + OFFSET_X)] - E[int(i * j * k + OFFSET_X)];
             }
         }
     }
@@ -94,7 +111,7 @@ void curl_e_y_sub(double *E, double *curl_E)
         {
             for (int k = 0; k < SIZE; k++)
             {
-                curl_E[int(i * j * k + OFFSET_Y)] = E[int((i + 1) * j * k + OFFSET_Z)] - E[int(i * j * k + OFFSET_Z)];
+                curl_E[int(i * j * k + OFFSET_Y)] -= E[int((i + 1) * j * k + OFFSET_Z)] - E[int(i * j * k + OFFSET_Z)];
             }
         }
     }
@@ -108,7 +125,7 @@ void curl_e_z_add(double *E, double *curl_E)
         {
             for (int k = 0; k < SIZE; k++)
             {
-                curl_E[int(i * j * k + OFFSET_Z)] = E[int((i + 1) * j * k + OFFSET_Y)] + E[int(i * j * k + OFFSET_Y)];
+                curl_E[int(i * j * k + OFFSET_Z)] += E[int((i + 1) * j * k + OFFSET_Y)] - E[int(i * j * k + OFFSET_Y)];
             }
         }
     }
@@ -122,31 +139,93 @@ void curl_e_z_sub(double *E, double *curl_E)
         {
             for (int k = 0; k < SIZE; k++)
             {
-                curl_E[int(i * j * k + OFFSET_Z)] = E[int(i * (j + 1) * k + OFFSET_X)] - E[int(i * j * k + OFFSET_X)];
+                curl_E[int(i * j * k + OFFSET_Z)] -= E[int(i * (j + 1) * k + OFFSET_X)] - E[int(i * j * k + OFFSET_X)];
+            }
+        }
+    }
+}
+void curl_h_x_add(double *E, double *curl_E)
+{
+    for (int i = 0; i < SIZE; i++)
+    {
+        for (int j = 0; j < SIZE - 1; j++)
+        {
+            for (int k = 0; k < SIZE; k++)
+            {
+                curl_E[int(i * j * k + OFFSET_X)] += E[int(i * (j + 1) * k + OFFSET_Z)] - E[int(i * j * k + OFFSET_Z)];
+            }
+        }
+    }
+}
+void curl_h_x_sub(double *E, double *curl_E)
+{
+    for (int i = 0; i < SIZE; i++)
+    {
+        for (int j = 0; j < SIZE; j++)
+        {
+            for (int k = 0; k < SIZE - 1; k++)
+            {
+                curl_E[int(i * j * k + OFFSET_X)] -= E[int(i * j * (k + 1) + OFFSET_Y)] - E[int(i * j * k + OFFSET_Y)];
             }
         }
     }
 }
 
-void curl_h(double *mtx)
+void curl_h_y_add(double *E, double *curl_E)
 {
-    std::ofstream outFile("curl_e.txt");
-
-    if (!outFile)
-    {
-        std::cerr << "Error opening file for writing!" << std::endl;
-    }
-
     for (int i = 0; i < SIZE; i++)
     {
-        outFile << mtx[i] << std::endl;
+        for (int j = 0; j < SIZE; j++)
+        {
+            for (int k = 0; k < SIZE - 1; k++)
+            {
+                curl_E[int(i * j * k + OFFSET_Y)] += E[int(i * j * (k + 1) + OFFSET_X)] - E[int(i * j * k + OFFSET_X)];
+            }
+        }
     }
-
-    outFile.close();
-
-    std::cerr << "Array of doubles has been writtenå" << std::endl;
 }
 
+void curl_h_y_sub(double *E, double *curl_E)
+{
+    for (int i = 0; i < SIZE - 1; i++)
+    {
+        for (int j = 0; j < SIZE; j++)
+        {
+            for (int k = 0; k < SIZE; k++)
+            {
+                curl_E[int(i * j * k + OFFSET_Y)] -= E[int((i + 1) * j * k + OFFSET_Z)] - E[int(i * j * k + OFFSET_Z)];
+            }
+        }
+    }
+}
+
+void curl_h_z_add(double *E, double *curl_E)
+{
+    for (int i = 0; i < SIZE - 1; i++)
+    {
+        for (int j = 0; j < SIZE; j++)
+        {
+            for (int k = 0; k < SIZE; k++)
+            {
+                curl_E[int(i * j * k + OFFSET_Z)] += E[int((i + 1) * j * k + OFFSET_Y)] - E[int(i * j * k + OFFSET_Y)];
+            }
+        }
+    }
+}
+
+void curl_h_z_sub(double *E, double *curl_E)
+{
+    for (int i = 0; i < SIZE; i++)
+    {
+        for (int j = 0; j < SIZE - 1; j++)
+        {
+            for (int k = 0; k < SIZE; k++)
+            {
+                curl_E[int(i * j * k + OFFSET_Z)] -= E[int(i * (j + 1) * k + OFFSET_X)] - E[int(i * j * k + OFFSET_X)];
+            }
+        }
+    }
+}
 int main(int argc, char **argv)
 {
     if (argc < 2)
