@@ -209,9 +209,9 @@ class Processor
 private:
     // The tasks to run queue (FIFO).
     std::queue<TaskDef> task_queue_;
-    std::mutex mutex_task_queue; // ## ajout d'un mutex
-    std::mutex mutex_parser; // ## ajoute d'un mutex 
-    std::condition_variable can_receive; // ## condition variable pour le consommateur
+    std::mutex mutex_task_queue;                            // ## ajout d'un mutex
+    std::mutex mutex_parser;                                // ## ajoute d'un mutex 
+    std::condition_variable can_receive;                    // ## condition variable pour le consommateur
 
     // The cache hash map (TODO). Note that we use the string definition as the // key.
     using PNGHashMap = std::unordered_map<std::string, PNGDataPtr>;
@@ -335,11 +335,11 @@ private:
         while (should_run_) {
             //if (!task_queue_.empty()) 
             //{
-                std::unique_lock<std::mutex> lock(mutex_task_queue); // ## Ajout d'un lock poru protéger la liste
-                can_receive.wait(lock, [&] {return !task_queue_.empty();});
+                std::unique_lock<std::mutex> lock(mutex_task_queue);            // ## Ajout d'un lock poru protéger la liste
+                can_receive.wait(lock, [&] {return !task_queue_.empty();});     // ## Ajout d'un wait pour synchroniser le consommateur avec les nouvelles données du producteur
                 TaskDef task_def = task_queue_.front();
                 task_queue_.pop();
-                mutex_task_queue.unlock(); // ## unlock le mutex pour la liste
+                mutex_task_queue.unlock();                                      // ## unlock le mutex pour la liste
                 TaskRunner runner(task_def);
                 runner();
             //}
@@ -371,7 +371,7 @@ int main(int argc, char** argv)
     }
 
     // TODO: change the number of threads from args.
-    Processor proc(std::stoi(argv[2]));
+    Processor proc(std::stoi(argv[2]));                     // ## Ajout du paramètre pour le nombre de fils
     
     while (!std::cin.eof()) {
 
