@@ -5,10 +5,11 @@ import os
 import subprocess
 import sys
 
-NUM_PROCESSES = 2
+NUM_PROCESSES = int(sys.argv[1])
+NUM_THREADS = int(sys.argv[2])
 
 def run_process(task_desc):
-    p = subprocess.Popen(["./asset_conv"], stdin=subprocess.PIPE)
+    p = subprocess.Popen(["./asset_conv", "-", str(NUM_THREADS)], stdin=subprocess.PIPE)
     p.communicate(input=task_desc.encode())
 
 

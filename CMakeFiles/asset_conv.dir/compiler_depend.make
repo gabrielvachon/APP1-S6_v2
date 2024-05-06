@@ -237,8 +237,11 @@ CMakeFiles/asset_conv.dir/src/asset_conv.cpp.o: src/asset_conv.cpp \
   /usr/include/c++/12/bits/parse_numbers.h \
   /usr/include/c++/12/mutex \
   /usr/include/c++/12/bits/std_mutex.h \
-  /usr/include/c++/12/bits/unique_lock.h
+  /usr/include/c++/12/bits/unique_lock.h \
+  /usr/include/c++/12/condition_variable
 
+
+/usr/include/c++/12/condition_variable:
 
 /usr/include/c++/12/bits/unique_lock.h:
 
