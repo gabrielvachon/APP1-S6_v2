@@ -1,5 +1,6 @@
 # GPL3, Copyright (c) Max Hofheinz, UdeS, 2021
 
+import copy
 import numpy
 import fiddle
 import mmap
@@ -20,7 +21,6 @@ def curl_E(E):
 
     curl_E[:-1, :, :, 2] += E[1:, :, :, 1] - E[:-1, :, :, 1]
     curl_E[:, :-1, :, 2] -= E[:, 1:, :, 0] - E[:, :-1, :, 0]
-    print(curl_E)
     return curl_E
 
 
@@ -35,14 +35,15 @@ def curl_H(H):
 
     curl_H[1:, :, :, 2] += H[1:, :, :, 1] - H[:-1, :, :, 1]
     curl_H[:, 1:, :, 2] -= H[:, 1:, :, 0] - H[:, :-1, :, 0]
-    print(curl_H)
     return curl_H
 
 
 def timestep(E, H, courant_number, source_pos, source_val):
     E += courant_number * curl_H(H)
     E[source_pos] += source_val
+    print(numpy.sum(E))
     H -= courant_number * curl_E(E)
+    print(numpy.sum(H))
     return E, H
 
 
@@ -58,10 +59,6 @@ def signal_and_wait(subproc):
     print(res)
 
 
-def buffer_to_matrix(buffer):
-    return buffer
-
-
 class WaveEquation:
     def __init__(self, s, courant_number, source):
         self.curl_proc = curl_subprocess()
@@ -69,13 +66,15 @@ class WaveEquation:
         self.shm_f = open(FNAME, "r+b")
         self.shm_mm = mmap.mmap(self.shm_f.fileno(), 0)
         self.shared_matrix = numpy.ndarray(
-            shape=(MATRIX_SIZE, MATRIX_SIZE, MATRIX_SIZE, 3), dtype=numpy.float64, buffer=self.shm_mm
+            shape=(MATRIX_SIZE, MATRIX_SIZE, MATRIX_SIZE, 3),
+            dtype=numpy.float64,
+            buffer=self.shm_mm,
         )
 
         s = s + (3,)
 
         self.E = numpy.zeros(s)
-        self.H = numpy.ones(s)
+        self.H = numpy.zeros(s)
         self.courant_number = courant_number
         self.source = source
         self.index = 0
@@ -94,31 +93,9 @@ class WaveEquation:
             field = field[:, :, slice_index, field_component]
         source_pos, source_index = source(self.index)
 
-        self.shared_matrix += self.H
-
-        self.shared_matrix[0,0,0,0] = 5
-        self.shared_matrix[0,0,0,1] = 15
-        self.shared_matrix[0,0,0,2] = 25
-
-        self.shared_matrix[1,0,0,0] = 50
-        self.shared_matrix[1,0,0,1] = 150
-        self.shared_matrix[1,0,0,2] = 250
-
-        self.shared_matrix[0,1,0,0] = 50
-        self.shared_matrix[0,1,0,1] = 150
-        self.shared_matrix[0,1,0,2] = 250
-
-        self.shared_matrix[0,0,1,0] = 50
-        self.shared_matrix[0,0,1,1] = 150
-        self.shared_matrix[0,0,1,2] = 250
-
-        self.shared_matrix[-1,-1,-1,0] = 10
-        self.shared_matrix[-1,-1,-1,1] = 20
-        self.shared_matrix[-1,-1,-1,2] = 30
-
-        self.E, self.H = self.timestep(
-            self.E, self.H, self.courant_number, source_pos, source_index
-        )
+        self.timestep(source_pos, source_index)
+        #self.E, self.H = timestep(self.E, self.H, self.courant_number, source_pos, source_index)
+        
 
         if initial:
             axes = figure.add_subplot(111)
@@ -127,16 +104,19 @@ class WaveEquation:
             self.image.set_data(field)
         self.index += 1
 
-    def timestep(self, E, H, courant_number, source_pos, source_val):
+    def timestep(self, source_pos, source_val):
         signal_and_wait(self.curl_proc)
-        E += courant_number * self.shared_matrix
-        E[source_pos] += source_val
+        self.shared_matrix += self.courant_number * self.shared_matrix
+        self.shared_matrix[source_pos] += source_val
 
-        self.shared_matrix = E
+        self.E = numpy.copy(self.shared_matrix)
+        print(numpy.sum(self.E))
 
         signal_and_wait(self.curl_proc)
-        H -= courant_number * self.shared_matrix
-        return E, H
+        self.shared_matrix -= self.courant_number * self.shared_matrix
+
+        self.H = numpy.copy(self.shared_matrix)
+        print(numpy.sum(self.H))
 
 
 if __name__ == "__main__":
