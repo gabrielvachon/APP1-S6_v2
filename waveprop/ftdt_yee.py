@@ -66,12 +66,14 @@ class WaveEquation:
         signal_and_wait(self.curl_proc)
         self.shm_f = open(FNAME, "r+b")
         self.shm_mm = mmap.mmap(self.shm_f.fileno(), 0)
-        s = s + (3,)
         self.shared_matrix = numpy.ndarray(
-            shape=s, dtype=numpy.float64, buffer=self.shm_mm
+            shape=(MATRIX_SIZE, MATRIX_SIZE, MATRIX_SIZE, 3), dtype=numpy.float64, buffer=self.shm_mm
         )
+
+        s = s + (3,)
+
         self.E = numpy.zeros(s)
-        self.H = numpy.zeros(s)
+        self.H = numpy.ones(s)
         self.courant_number = courant_number
         self.source = source
         self.index = 0
@@ -89,6 +91,29 @@ class WaveEquation:
         elif slice == 2:
             field = field[:, :, slice_index, field_component]
         source_pos, source_index = source(self.index)
+
+        self.shared_matrix += self.H
+
+        self.shared_matrix[0,0,0,0] = 5
+        self.shared_matrix[0,0,0,1] = 15
+        self.shared_matrix[0,0,0,2] = 25
+
+        self.shared_matrix[1,0,0,0] = 50
+        self.shared_matrix[1,0,0,1] = 150
+        self.shared_matrix[1,0,0,2] = 250
+
+        self.shared_matrix[0,1,0,0] = 50
+        self.shared_matrix[0,1,0,1] = 150
+        self.shared_matrix[0,1,0,2] = 250
+
+        self.shared_matrix[0,0,1,0] = 50
+        self.shared_matrix[0,0,1,1] = 150
+        self.shared_matrix[0,0,1,2] = 250
+
+        self.shared_matrix[-1,-1,-1,0] = 10
+        self.shared_matrix[-1,-1,-1,1] = 20
+        self.shared_matrix[-1,-1,-1,2] = 30
+
         self.E, self.H = self.timestep(
             self.E, self.H, self.courant_number, source_pos, source_index
         )
