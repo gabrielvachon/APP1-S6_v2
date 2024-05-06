@@ -49,5 +49,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/lab_ex1.dir/DependInfo.cmake"
   "CMakeFiles/lab_ex2.dir/DependInfo.cmake"
   "CMakeFiles/lab_ex3.dir/DependInfo.cmake"
+  "CMakeFiles/curl_process.dir/DependInfo.cmake"
   "CMakeFiles/lab_ex4.dir/DependInfo.cmake"
   )

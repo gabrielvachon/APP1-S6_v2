@@ -10,6 +10,7 @@ import time
 
 def subp():
     subproc = Popen(["./lab_ex4", FNAME], stdin=PIPE, stdout=PIPE)
+    print(subproc)
     return subproc
 
 def signal_and_wait(subproc):

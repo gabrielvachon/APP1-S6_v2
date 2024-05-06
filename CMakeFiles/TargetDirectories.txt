@@ -4,6 +4,7 @@
 /workspaces/gif643-proto-E24/CMakeFiles/lab_ex1.dir
 /workspaces/gif643-proto-E24/CMakeFiles/lab_ex2.dir
 /workspaces/gif643-proto-E24/CMakeFiles/lab_ex3.dir
+/workspaces/gif643-proto-E24/CMakeFiles/curl_process.dir
 /workspaces/gif643-proto-E24/CMakeFiles/lab_ex4.dir
 /workspaces/gif643-proto-E24/CMakeFiles/edit_cache.dir
 /workspaces/gif643-proto-E24/CMakeFiles/rebuild_cache.dir

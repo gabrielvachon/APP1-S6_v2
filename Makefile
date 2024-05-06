@@ -195,6 +195,19 @@ lab_ex3/fast:
 .PHONY : lab_ex3/fast
 
 #=============================================================================
+# Target rules for targets named curl_process
+
+# Build rule for target.
+curl_process: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 curl_process
+.PHONY : curl_process
+
+# fast build rule for target.
+curl_process/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/curl_process.dir/build.make CMakeFiles/curl_process.dir/build
+.PHONY : curl_process/fast
+
+#=============================================================================
 # Target rules for targets named lab_ex4
 
 # Build rule for target.
@@ -230,6 +243,30 @@ src/asset_conv.s: src/asset_conv.cpp.s
 src/asset_conv.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/asset_conv.dir/build.make CMakeFiles/asset_conv.dir/src/asset_conv.cpp.s
 .PHONY : src/asset_conv.cpp.s
+
+src/curl_process.o: src/curl_process.cpp.o
+.PHONY : src/curl_process.o
+
+# target to build an object file
+src/curl_process.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/curl_process.dir/build.make CMakeFiles/curl_process.dir/src/curl_process.cpp.o
+.PHONY : src/curl_process.cpp.o
+
+src/curl_process.i: src/curl_process.cpp.i
+.PHONY : src/curl_process.i
+
+# target to preprocess a source file
+src/curl_process.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/curl_process.dir/build.make CMakeFiles/curl_process.dir/src/curl_process.cpp.i
+.PHONY : src/curl_process.cpp.i
+
+src/curl_process.s: src/curl_process.cpp.s
+.PHONY : src/curl_process.s
+
+# target to generate assembly for a file
+src/curl_process.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/curl_process.dir/build.make CMakeFiles/curl_process.dir/src/curl_process.cpp.s
+.PHONY : src/curl_process.cpp.s
 
 src/lab_ex1.o: src/lab_ex1.cpp.o
 .PHONY : src/lab_ex1.o
@@ -384,6 +421,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... asset_conv"
+	@echo "... curl_process"
 	@echo "... lab_ex1"
 	@echo "... lab_ex2"
 	@echo "... lab_ex3"
@@ -393,6 +431,9 @@ help:
 	@echo "... src/asset_conv.o"
 	@echo "... src/asset_conv.i"
 	@echo "... src/asset_conv.s"
+	@echo "... src/curl_process.o"
+	@echo "... src/curl_process.i"
+	@echo "... src/curl_process.s"
 	@echo "... src/lab_ex1.o"
 	@echo "... src/lab_ex1.i"
 	@echo "... src/lab_ex1.s"

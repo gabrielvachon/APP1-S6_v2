@@ -20,6 +20,7 @@ def curl_E(E):
 
     curl_E[:-1, :, :, 2] += E[1:, :, :, 1] - E[:-1, :, :, 1]
     curl_E[:, :-1, :, 2] -= E[:, 1:, :, 0] - E[:, :-1, :, 0]
+    print(curl_E)
     return curl_E
 
 
@@ -34,6 +35,7 @@ def curl_H(H):
 
     curl_H[1:, :, :, 2] += H[1:, :, :, 1] - H[:-1, :, :, 1]
     curl_H[:, 1:, :, 2] -= H[:, 1:, :, 0] - H[:, :-1, :, 0]
+    print(curl_H)
     return curl_H
 
 

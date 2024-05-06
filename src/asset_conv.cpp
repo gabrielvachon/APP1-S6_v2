@@ -316,9 +316,9 @@ public:
         TaskDef def;
         if (parse(line_org, def)) {
             std::cerr << "Queueing task '" << line_org << "'." << std::endl;
-            std::lock_guard<std::mutex> lock(mutex_parser);
+            std::lock_guard<std::mutex> lock(mutex_parser);                     // ## lock le mutex avant de push des nouvelles données dans la queue
             task_queue_.push(def);
-            can_receive.notify_one();
+            can_receive.notify_one();                                           // ## notifie le consommateur lorsque de nouvelles données sont prêtes
         }
     }
 

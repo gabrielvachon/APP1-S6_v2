@@ -1,4 +1,3 @@
-
 #  Copyright (C) 2009,2011,2020. Max Hofheinz
 
 import tkinter
