@@ -1,6 +1,14 @@
 # GPL3, Copyright (c) Max Hofheinz, UdeS, 2021
 
-import numpy, fiddle
+import numpy
+import fiddle
+import mmap
+from subprocess import Popen, PIPE
+
+PNAME = "./curl_process"
+FNAME = "GIF642-problematique-shm"
+MATRIX_SIZE = 100
+
 
 def curl_E(E):
     curl_E = numpy.zeros(E.shape)
@@ -14,17 +22,18 @@ def curl_E(E):
     curl_E[:, :-1, :, 2] -= E[:, 1:, :, 0] - E[:, :-1, :, 0]
     return curl_E
 
+
 def curl_H(H):
     curl_H = numpy.zeros(H.shape)
 
-    curl_H[:,1:,:,0] += H[:,1:,:,2] - H[:,:-1,:,2]
-    curl_H[:,:,1:,0] -= H[:,:,1:,1] - H[:,:,:-1,1]
+    curl_H[:, 1:, :, 0] += H[:, 1:, :, 2] - H[:, :-1, :, 2]
+    curl_H[:, :, 1:, 0] -= H[:, :, 1:, 1] - H[:, :, :-1, 1]
 
-    curl_H[:,:,1:,1] += H[:,:,1:,0] - H[:,:,:-1,0]
-    curl_H[1:,:,:,1] -= H[1:,:,:,2] - H[:-1,:,:,2]
+    curl_H[:, :, 1:, 1] += H[:, :, 1:, 0] - H[:, :, :-1, 0]
+    curl_H[1:, :, :, 1] -= H[1:, :, :, 2] - H[:-1, :, :, 2]
 
-    curl_H[1:,:,:,2] += H[1:,:,:,1] - H[:-1,:,:,1]
-    curl_H[:,1:,:,2] -= H[:,1:,:,0] - H[:,:-1,:,0]
+    curl_H[1:, :, :, 2] += H[1:, :, :, 1] - H[:-1, :, :, 1]
+    curl_H[:, 1:, :, 2] -= H[:, 1:, :, 0] - H[:, :-1, :, 0]
     return curl_H
 
 
@@ -35,9 +44,32 @@ def timestep(E, H, courant_number, source_pos, source_val):
     return E, H
 
 
+def curl_subprocess():
+    subproc = Popen([PNAME, FNAME], stdin=PIPE, stdout=PIPE)
+    return subproc
+
+
+def signal_and_wait(subproc):
+    subproc.stdin.write("S\n".encode())
+    subproc.stdin.flush()
+    res = subproc.stdout.readline()
+    print(res)
+
+
+def buffer_to_matrix(buffer):
+    return buffer
+
+
 class WaveEquation:
     def __init__(self, s, courant_number, source):
+        self.curl_proc = curl_subprocess()
+        signal_and_wait(self.curl_proc)
+        self.shm_f = open(FNAME, "r+b")
+        self.shm_mm = mmap.mmap(self.shm_f.fileno(), 0)
         s = s + (3,)
+        self.shared_matrix = numpy.ndarray(
+            shape=s, dtype=numpy.float64, buffer=self.shm_mm
+        )
         self.E = numpy.zeros(s)
         self.H = numpy.zeros(s)
         self.courant_number = courant_number
@@ -57,7 +89,9 @@ class WaveEquation:
         elif slice == 2:
             field = field[:, :, slice_index, field_component]
         source_pos, source_index = source(self.index)
-        self.E, self.H = timestep(self.E, self.H, self.courant_number, source_pos, source_index)
+        self.E, self.H = self.timestep(
+            self.E, self.H, self.courant_number, source_pos, source_index
+        )
 
         if initial:
             axes = figure.add_subplot(111)
@@ -66,18 +100,33 @@ class WaveEquation:
             self.image.set_data(field)
         self.index += 1
 
+    def timestep(self, E, H, courant_number, source_pos, source_val):
+        signal_and_wait(self.curl_proc)
+        E += courant_number * self.shared_matrix
+        E[source_pos] += source_val
+
+        self.shared_matrix = E
+
+        signal_and_wait(self.curl_proc)
+        H -= courant_number * self.shared_matrix
+        return E, H
+
 
 if __name__ == "__main__":
     n = 100
     r = 0.01
     l = 30
 
-
     def source(index):
-        return ([n // 3], [n // 3], [n // 2],[0]), 0.1*numpy.sin(0.1 * index)
-
+        return ([n // 3], [n // 3], [n // 2], [0]), 0.1 * numpy.sin(0.1 * index)
 
     w = WaveEquation((n, n, n), 0.1, source)
-    fiddle.fiddle(w, [('field component',{'Ex':0,'Ey':1,'Ez':2, 'Hx':3,'Hy':4,'Hz':5}),('slice',{'XY':2,'YZ':0,'XZ':1}),('slice index',0,n-1,n//2,1)], update_interval=0.01)
-
-
+    fiddle.fiddle(
+        w,
+        [
+            ("field component", {"Ex": 0, "Ey": 1, "Ez": 2, "Hx": 3, "Hy": 4, "Hz": 5}),
+            ("slice", {"XY": 2, "YZ": 0, "XZ": 1}),
+            ("slice index", 0, n - 1, n // 2, 1),
+        ],
+        update_interval=0.01,
+    )
