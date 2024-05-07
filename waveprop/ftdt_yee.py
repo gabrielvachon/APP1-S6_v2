@@ -37,12 +37,9 @@ def curl_H(H):
 
 def timestep(E, H, courant_number, source_pos, source_val):
     curl_h = curl_H(H)
-
     E += courant_number * curl_h
     E[source_pos] += source_val
-    print(numpy.sum(E))
     H -= courant_number * curl_E(E)
-    print(numpy.sum(H))
     return E, H
 
 
@@ -93,7 +90,7 @@ class WaveEquation:
         source_pos, source_index = source(self.index)
 
         self.timestep(source_pos, source_index)
-        # self.E, self.H = timestep(self.E, self.H, self.courant_number, source_pos, source_index)
+        #self.E, self.H = timestep(self.E, self.H, self.courant_number, source_pos, source_index)
 
         if initial:
             axes = figure.add_subplot(111)
