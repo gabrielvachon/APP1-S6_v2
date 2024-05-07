@@ -51,8 +51,8 @@ def curl_subprocess():
 def signal_and_wait(subproc):
     subproc.stdin.write("S\n".encode())
     subproc.stdin.flush()
-    res = subproc.stdout.readline()
-    print(res)
+    subproc.stdout.readline()
+    
 
 
 class WaveEquation:

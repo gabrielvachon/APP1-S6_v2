@@ -319,7 +319,7 @@ int main(int argc, char **argv)
     fwrite(buffer_, sizeof(char), BUFFER_SIZE, shm_f);
     fclose(shm_f);
 
-    std::cerr << "CPP:  File ready." << std::endl;
+    std::cerr << "CPP : File ready." << std::endl;
     ack_signal();
 
     int shm_fd = open(argv[1], O_RDWR);
@@ -328,7 +328,7 @@ int main(int argc, char **argv)
 
     if (shm_mmap == MAP_FAILED)
     {
-        std::cerr << "ERROR SHM\n";
+        std::cerr << "CPP ERROR : SHM\n";
         perror(NULL);
         return -1;
     }
@@ -356,7 +356,7 @@ int main(int argc, char **argv)
 
         delete curl_H;
 
-        std::cerr << "CPP: Curl H done."
+        std::cerr << "CPP : Curl H done."
                   << std::endl;
         ack_signal();
 
@@ -379,7 +379,7 @@ int main(int argc, char **argv)
 
         delete curl_E;
 
-        std::cerr << "CPP: Curl E done."
+        std::cerr << "CPP : Curl E done."
                   << std::endl;
         ack_signal();
     }
