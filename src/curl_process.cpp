@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include <thread>
 
 static const int NUM_DIMENSIONS = 3;
 static const int MATRIX_SIZE = 100;
@@ -38,6 +39,8 @@ void curl_h_y_sub(double *H, double *curl_H);
 void curl_h_z_add(double *H, double *curl_H);
 void curl_h_z_sub(double *H, double *curl_H);
 
+void copy_matrix(double *mtx, double *other_mtx, int start, int end);
+
 char buffer_[BUFFER_SIZE];
 
 void wait_signal()
@@ -56,19 +59,18 @@ double *curl_e(double *E)
 {
     std::cerr << "CPP : Curl E" << std::endl;
     double *curl_E = new double[SIZE]{};
-    curl_e_x_add(E, curl_E);
-    std::cerr << "CPP : Curl E X Add" << std::endl;
-    curl_e_x_sub(E, curl_E);
-    std::cerr << "CPP : Curl E X Sub" << std::endl;
-    curl_e_y_add(E, curl_E);
-    std::cerr << "CPP : Curl E Y Add" << std::endl;
-    curl_e_y_sub(E, curl_E);
-    std::cerr << "CPP : Curl E Y Sub" << std::endl;
-    curl_e_z_add(E, curl_E);
-    std::cerr << "CPP : Curl E Z Add" << std::endl;
-    curl_e_z_sub(E, curl_E);
-    std::cerr << "CPP : Curl E Z Sub" << std::endl;
-
+    std::thread thread_x_add(curl_e_x_add, E, curl_E);
+    std::thread thread_x_sub(curl_e_x_sub, E, curl_E);
+    std::thread thread_y_add(curl_e_y_add, E, curl_E);
+    std::thread thread_y_sub(curl_e_y_sub, E, curl_E);
+    std::thread thread_z_add(curl_e_z_add, E, curl_E);
+    std::thread thread_z_sub(curl_e_z_sub, E, curl_E);
+    thread_x_add.join();
+    thread_x_sub.join();
+    thread_y_add.join();
+    thread_y_sub.join();
+    thread_z_add.join();
+    thread_z_sub.join();
     return curl_E;
 }
 
@@ -76,18 +78,18 @@ double *curl_h(double *H)
 {
     std::cerr << "CPP : Curl H" << std::endl;
     double *curl_H = new double[SIZE]{};
-    curl_h_x_add(H, curl_H);
-    std::cerr << "CPP : Curl H X Add" << std::endl;
-    curl_h_x_sub(H, curl_H);
-    std::cerr << "CPP : Curl H X Sub" << std::endl;
-    curl_h_y_add(H, curl_H);
-    std::cerr << "CPP : Curl H Y Add" << std::endl;
-    curl_h_y_sub(H, curl_H);
-    std::cerr << "CPP : Curl H Y Sub" << std::endl;
-    curl_h_z_add(H, curl_H);
-    std::cerr << "CPP : Curl H Z Add" << std::endl;
-    curl_h_z_sub(H, curl_H);
-    std::cerr << "CPP : Curl H Z Sub" << std::endl;
+    std::thread thread_x_add(curl_h_x_add, H, curl_H);
+    std::thread thread_x_sub(curl_h_x_sub, H, curl_H);
+    std::thread thread_y_add(curl_h_y_add, H, curl_H);
+    std::thread thread_y_sub(curl_h_y_sub, H, curl_H);
+    std::thread thread_z_add(curl_h_z_add, H, curl_H);
+    std::thread thread_z_sub(curl_h_z_sub, H, curl_H);
+    thread_x_add.join();
+    thread_x_sub.join();
+    thread_y_add.join();
+    thread_y_sub.join();
+    thread_z_add.join();
+    thread_z_sub.join();
     return curl_H;
 }
 
@@ -107,6 +109,7 @@ void curl_e_x_add(double *E, double *curl_E)
         }
     }
 }
+
 void curl_e_x_sub(double *E, double *curl_E)
 {
     for (int i = 0; i < MATRIX_SIZE; i++)
@@ -191,6 +194,7 @@ void curl_e_z_sub(double *E, double *curl_E)
         }
     }
 }
+
 void curl_h_x_add(double *H, double *curl_H)
 {
     for (int i = 0; i < MATRIX_SIZE; i++)
@@ -207,6 +211,7 @@ void curl_h_x_add(double *H, double *curl_H)
         }
     }
 }
+
 void curl_h_x_sub(double *H, double *curl_H)
 {
     for (int i = 0; i < MATRIX_SIZE; i++)
@@ -291,6 +296,15 @@ void curl_h_z_sub(double *H, double *curl_H)
         }
     }
 }
+
+void copy_matrix(double *mtx, double *mtx_to_copy, int start, int end)
+{
+    for (int i = start; i < end; i++)
+    {
+        mtx[i] = mtx_to_copy[i];
+    }
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 2)
@@ -324,25 +338,49 @@ int main(int argc, char **argv)
     while (true)
     {
         wait_signal();
-        double* curl_H = curl_h(mtx);
-        for (int i = 0; i < SIZE; i++)
-        {
-            mtx[i] = curl_H[i];
-        }
+        double *curl_H = curl_h(mtx);
+
+        std::thread thread_copy_1(copy_matrix, mtx, curl_H, 0, 500000);
+        std::thread thread_copy_2(copy_matrix, mtx, curl_H, 500000, 1000000);
+        std::thread thread_copy_3(copy_matrix, mtx, curl_H, 1000000, 1500000);
+        std::thread thread_copy_4(copy_matrix, mtx, curl_H, 1500000, 2000000);
+        std::thread thread_copy_5(copy_matrix, mtx, curl_H, 2000000, 2500000);
+        std::thread thread_copy_6(copy_matrix, mtx, curl_H, 2500000, 3000000);
+
+        thread_copy_1.join();
+        thread_copy_2.join();
+        thread_copy_3.join();
+        thread_copy_4.join();
+        thread_copy_5.join();
+        thread_copy_6.join();
+
         delete curl_H;
 
-        std::cerr << "CPP: Curl H done.\n" << std::endl;
+        std::cerr << "CPP: Curl H done."
+                  << std::endl;
         ack_signal();
 
         wait_signal();
-        double* curl_E = curl_e(mtx);
-        for (int i = 0; i < SIZE; i++)
-        {
-            mtx[i] = curl_E[i];
-        }
+        double *curl_E = curl_e(mtx);
+
+        std::thread thread_copy_7(copy_matrix, mtx, curl_E, 0, 500000);
+        std::thread thread_copy_8(copy_matrix, mtx, curl_E, 500000, 1000000);
+        std::thread thread_copy_9(copy_matrix, mtx, curl_E, 1000000, 1500000);
+        std::thread thread_copy_10(copy_matrix, mtx, curl_E, 1500000, 2000000);
+        std::thread thread_copy_11(copy_matrix, mtx, curl_E, 2000000, 2500000);
+        std::thread thread_copy_12(copy_matrix, mtx, curl_E, 2500000, 3000000);
+
+        thread_copy_7.join();
+        thread_copy_8.join();
+        thread_copy_9.join();
+        thread_copy_10.join();
+        thread_copy_11.join();
+        thread_copy_12.join();
+
         delete curl_E;
 
-        std::cerr << "CPP: Curl E done.\n" << std::endl;
+        std::cerr << "CPP: Curl E done."
+                  << std::endl;
         ack_signal();
     }
 

@@ -24,7 +24,6 @@ def curl_E(E):
 
 def curl_H(H):
     curl_H = numpy.zeros(H.shape)
-
     curl_H[:, 1:, :, 0] += H[:, 1:, :, 2] - H[:, :-1, :, 2]
     curl_H[:, :, 1:, 0] -= H[:, :, 1:, 1] - H[:, :, :-1, 1]
 
@@ -93,8 +92,8 @@ class WaveEquation:
             field = field[:, :, slice_index, field_component]
         source_pos, source_index = source(self.index)
 
-        # self.timestep(source_pos, source_index)
-        self.E, self.H = timestep(self.E, self.H, self.courant_number, source_pos, source_index)
+        self.timestep(source_pos, source_index)
+        # self.E, self.H = timestep(self.E, self.H, self.courant_number, source_pos, source_index)
 
         if initial:
             axes = figure.add_subplot(111)
@@ -104,23 +103,15 @@ class WaveEquation:
         self.index += 1
 
     def timestep(self, source_pos, source_val):
-        print(f"Sum Shared Matrix Before : {numpy.sum(self.shared_matrix)}")
         signal_and_wait(self.curl_proc)
-        print(f"Sum Shared Matrix After : {numpy.sum(self.shared_matrix)}")
-
         self.E += self.courant_number * self.shared_matrix
         self.E[source_pos] += source_val
 
-        self.shared_matrix[:,:,:,:] = self.E[:,:,:,:]
-        
-        print(f"Sum Shared Matrix Before : {numpy.sum(self.shared_matrix)}")
+        self.shared_matrix[:, :, :, :] = self.E[:, :, :, :]
+
         signal_and_wait(self.curl_proc)
-        print(f"Sum Shared Matrix After : {numpy.sum(self.shared_matrix)}")
-
         self.H -= self.courant_number * self.shared_matrix
-        self.shared_matrix[:,:,:,:] = self.H[:,:,:,:]
-        
-
+        self.shared_matrix[:, :, :, :] = self.H[:, :, :, :]
 
 
 if __name__ == "__main__":
