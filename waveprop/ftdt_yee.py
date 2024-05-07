@@ -109,6 +109,8 @@ class WaveEquation:
         signal_and_wait(self.curl_proc)
         self.H -= self.courant_number * self.shared_matrix
         self.shared_matrix[:, :, :, :] = self.H[:, :, :, :]
+        print(f"E : {numpy.sum(self.E)}")
+        print(f"H : {numpy.sum(self.H)}")
 
 
 if __name__ == "__main__":

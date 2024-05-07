@@ -40,6 +40,8 @@ def timestep(E, H, courant_number, source_pos, source_val):
     E += courant_number * curl_h
     E[source_pos] += source_val
     H -= courant_number * curl_E(E)
+    print(f"E : {numpy.sum(E)}")
+    print(f"H : {numpy.sum(H)}")
     return E, H
 
 
@@ -109,6 +111,8 @@ class WaveEquation:
         signal_and_wait(self.curl_proc)
         self.H -= self.courant_number * self.shared_matrix
         self.shared_matrix[:, :, :, :] = self.H[:, :, :, :]
+        print(f"E : {numpy.sum(self.E)}")
+        print(f"H : {numpy.sum(self.H)}")
 
 
 if __name__ == "__main__":
